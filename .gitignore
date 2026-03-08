@@ -1,11 +1,11 @@
+notepad .gitignore
+```
+
+Change it to:
+```
 # Virtual environment
 venv/
 env/
-
-# Model files (too large for GitHub)
-*.h5
-*.keras
-*.pkl
 
 # Dataset (auto-downloads)
 data/food101/
@@ -18,9 +18,8 @@ __pycache__/
 *.pyd
 .Python
 
-# Results (keep plots, ignore logs)
+# Results (keep plots and model, ignore logs)
 results/logs/
-results/model/
 
 # Environment variables
 .env
