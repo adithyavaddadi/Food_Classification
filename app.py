@@ -276,7 +276,7 @@ label { color: #4a4a62 !important; font-size: 0.72em !important; letter-spacing:
 """
 
 
-with gr.Blocks(title="Food AI — Classification & Nutrition") as app:
+with gr.Blocks(title="Food AI — Classification & Nutrition",css=custom_css) as app:
 
     gr.HTML("""
     <div id="hero">
@@ -367,5 +367,4 @@ if __name__ == "__main__":
         show_error=True,
         server_name="0.0.0.0",
         server_port=7860,
-        css=custom_css,
     )
