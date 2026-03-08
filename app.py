@@ -1,3 +1,8 @@
+from src.predict import predict_food
+from src.config import FOOD_CLASSES
+import os
+print("Model exists:", os.path.exists("/app/results/model/food_classifier.h5"))
+print("Files in /app/results/model:", os.listdir("/app/results/model") if os.path.exists("/app/results/model") else "DIR NOT FOUND")
 import os
 import warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
