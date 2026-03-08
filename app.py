@@ -319,7 +319,7 @@ with gr.Blocks(title="Food AI — Classification & Nutrition") as app:
                 headers=["Food", "Confidence"],
                 label="",
                 row_count=3,
-                column_count=2,
+                col_count=2,
                 show_label=False,
             )
 
