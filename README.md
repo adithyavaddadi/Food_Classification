@@ -1,15 +1,3 @@
-tensorflow-cpu==2.21.0
-keras==3.12.0
-tensorflow-datasets==4.9.4
-numpy==2.1.0
-pandas==2.2.3
-scikit-learn==1.5.2
-matplotlib==3.10.0
-seaborn==0.13.2
-requests==2.31.0
-python-dotenv==1.0.1
-Pillow==10.4.0
-gradio==5.23.0
 ---
 title: Food Classification
 emoji: 🍕
@@ -124,6 +112,18 @@ source venv/bin/activate   # Mac/Linux
 ### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
+tensorflow-cpu==2.21.0
+keras==3.12.0
+tensorflow-datasets==4.9.4
+numpy==2.1.0
+pandas==2.2.3
+scikit-learn==1.5.2
+matplotlib==3.10.0
+seaborn==0.13.2
+requests==2.31.0
+python-dotenv==1.0.1
+Pillow==10.4.0
+gradio==5.23.0
 ```
 
 ### 4. Add your trained model
