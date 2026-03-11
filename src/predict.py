@@ -1,14 +1,15 @@
-﻿"""
+"""
 predict.py - Handles model inference with improved error handling.
 """
 import os
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.utils import custom_object_scope
-from PIL import Image, UnidentifiedImageError
+from PIL import Image
 from src.config import MODEL_PATH, IMAGE_SIZE, FOOD_CLASSES
 from src.nutrition import get_nutrition_info
 
+# Fix: patch DepthwiseConv2D to strip unsupported 'groups' kwarg
+@tf.keras.utils.register_keras_serializable()
 class FixedDepthwiseConv2D(tf.keras.layers.DepthwiseConv2D):
     def __init__(self, *args, **kwargs):
         kwargs.pop("groups", None)
@@ -19,8 +20,10 @@ model = None
 def load_model():
     global model
     if model is None:
-        with custom_object_scope({"DepthwiseConv2D": FixedDepthwiseConv2D}):
-            model = tf.keras.models.load_model(MODEL_PATH)
+        model = tf.keras.models.load_model(
+            MODEL_PATH,
+            custom_objects={"DepthwiseConv2D": FixedDepthwiseConv2D}
+        )
 
 def validate_image(image):
     if image is None:
@@ -58,7 +61,7 @@ def predict_food(image):
     top_confidence = top_predictions[0]["confidence"]
     warning = None
     if is_low_confidence(top_confidence):
-        warning = f"⚠️ Low confidence ({round(top_confidence*100, 1)}%) — this food may not be in our database."
+        warning = f"Warning: Low confidence ({round(top_confidence*100, 1)}%) - this food may not be in our database."
     nutrition, health_score, tip, category, color = get_nutrition_info(predicted_food)
     return {
         "prediction":      predicted_food,
