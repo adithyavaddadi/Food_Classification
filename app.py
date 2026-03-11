@@ -1,9 +1,6 @@
 from src.predict import predict_food
 from src.config import FOOD_CLASSES
 import os
-print("Model exists:", os.path.exists("/app/results/model/food_classifier.h5"))
-print("Files in /app/results/model:", os.listdir("/app/results/model") if os.path.exists("/app/results/model") else "DIR NOT FOUND")
-import os
 import warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
@@ -20,17 +17,27 @@ from src.config import FOOD_CLASSES
 
 MODEL_INFO = f"""
 <div class='model-info-bar'>
-  <div class='model-stat'><span class='ms-label'>Model</span><span class='ms-val'>MobileNetV2</span></div>
-  <div class='model-divider'></div>
-  <div class='model-stat'><span class='ms-label'>Dataset</span><span class='ms-val'>Food101</span></div>
-  <div class='model-divider'></div>
-  <div class='model-stat'><span class='ms-label'>Classes</span><span class='ms-val'>{len(FOOD_CLASSES)}</span></div>
-  <div class='model-divider'></div>
-  <div class='model-stat'><span class='ms-label'>Architecture</span><span class='ms-val'>Transfer Learning</span></div>
-  <div class='model-divider'></div>
-  <div class='model-stat'><span class='ms-label'>Input Size</span><span class='ms-val'>224 × 224</span></div>
+<div class='model-stat'><span class='ms-label'>Model</span><span class='ms-val'>MobileNetV2</span></div>
+<div class='model-divider'></div>
+<div class='model-stat'><span class='ms-label'>Dataset</span><span class='ms-val'>Food101</span></div>
+<div class='model-divider'></div>
+<div class='model-stat'><span class='ms-label'>Classes</span><span class='ms-val'>{len(FOOD_CLASSES)}</span></div>
+<div class='model-divider'></div>
+<div class='model-stat'><span class='ms-label'>Architecture</span><span class='ms-val'>Transfer Learning</span></div>
+<div class='model-divider'></div>
+<div class='model-stat'><span class='ms-label'>Input Size</span><span class='ms-val'>224 × 224</span></div>
 </div>
 """
+
+# Sample images (URL-based, no upload needed)
+SAMPLE_IMAGES = [
+    ["https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg/800px-Eq_it-na_pizza-margherita_sep2005_sml.jpg"],
+    ["https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Biryani_at_Hyderabad%2CIndia.jpg/800px-Biryani_at_Hyderabad%2CIndia.jpg"],
+    ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/800px-Good_Food_Display_-_NCI_Visuals_Online.jpg"],
+    ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG"],
+    ["https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Hapus_Mango.jpg/800px-Hapus_Mango.jpg"],
+    ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Chocolate_covered_strawberries.jpg/800px-Chocolate_covered_strawberries.jpg"],
+]
 
 
 def classify_food(image):
@@ -82,8 +89,8 @@ def classify_food(image):
         health_text = f"""
 ### Health Score
 <div class='health-bar-wrap'>
-  <div class='health-bar-bg'><div class='health-bar-fill' style='width:{bar_width}%;background:{color};box-shadow:0 0 12px {color}88'></div></div>
-  <span class='health-num' style='color:{color}'>{health_score}<span class='health-denom'>/10</span></span>
+<div class='health-bar-bg'><div class='health-bar-fill' style='width:{bar_width}%;background:{color};box-shadow:0 0 12px {color}88'></div></div>
+<span class='health-num' style='color:{color}'>{health_score}<span class='health-denom'>/10</span></span>
 </div>
 <div class='health-category' style='color:{color}'>{category}</div>
 """
@@ -104,62 +111,62 @@ custom_css = """
 *, *::before, *::after { box-sizing: border-box; }
 
 body, .gradio-container {
-    background: #080810 !important;
-    font-family: 'DM Sans', sans-serif !important;
-    color: #e2e2e8 !important;
-    min-height: 100vh;
+background: #080810 !important;
+font-family: 'DM Sans', sans-serif !important;
+color: #e2e2e8 !important;
+min-height: 100vh;
 }
 
 .gradio-container { max-width: 1240px !important; margin: 0 auto !important; padding: 0 20px !important; }
 
 /* ---- HERO ---- */
 #hero {
-    text-align: center;
-    padding: 56px 20px 32px;
-    position: relative;
-    overflow: hidden;
+text-align: center;
+padding: 56px 20px 32px;
+position: relative;
+overflow: hidden;
 }
 #hero::after {
-    content: '';
-    position: absolute;
-    top: -60px; left: 50%; transform: translateX(-50%);
-    width: 700px; height: 400px;
-    background: radial-gradient(ellipse, rgba(251,146,60,0.10) 0%, transparent 65%);
-    pointer-events: none; z-index: 0;
+content: '';
+position: absolute;
+top: -60px; left: 50%; transform: translateX(-50%);
+width: 700px; height: 400px;
+background: radial-gradient(ellipse, rgba(251,146,60,0.10) 0%, transparent 65%);
+pointer-events: none; z-index: 0;
 }
 .hero-eyebrow {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(251,146,60,0.08);
-    border: 1px solid rgba(251,146,60,0.25);
-    color: #fb923c;
-    font-size: 0.7em; font-weight: 600; letter-spacing: 0.18em;
-    text-transform: uppercase; padding: 5px 16px;
-    border-radius: 100px; margin-bottom: 20px;
-    position: relative; z-index: 1;
+display: inline-flex; align-items: center; gap: 6px;
+background: rgba(251,146,60,0.08);
+border: 1px solid rgba(251,146,60,0.25);
+color: #fb923c;
+font-size: 0.7em; font-weight: 600; letter-spacing: 0.18em;
+text-transform: uppercase; padding: 5px 16px;
+border-radius: 100px; margin-bottom: 20px;
+position: relative; z-index: 1;
 }
 .hero-title {
-    font-family: 'Syne', sans-serif !important;
-    font-size: clamp(2.2em, 5.5vw, 3.6em) !important;
-    font-weight: 800 !important; line-height: 1.08 !important;
-    letter-spacing: -0.025em;
-    background: linear-gradient(150deg, #ffffff 30%, #fdba74 70%, #fb923c 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    margin: 0 0 16px; position: relative; z-index: 1;
+font-family: 'Syne', sans-serif !important;
+font-size: clamp(2.2em, 5.5vw, 3.6em) !important;
+font-weight: 800 !important; line-height: 1.08 !important;
+letter-spacing: -0.025em;
+background: linear-gradient(150deg, #ffffff 30%, #fdba74 70%, #fb923c 100%);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+margin: 0 0 16px; position: relative; z-index: 1;
 }
 .hero-sub {
-    color: #5a5a72; font-size: 1em; font-weight: 300;
-    max-width: 400px; margin: 0 auto; line-height: 1.65;
-    position: relative; z-index: 1;
+color: #5a5a72; font-size: 1em; font-weight: 300;
+max-width: 400px; margin: 0 auto; line-height: 1.65;
+position: relative; z-index: 1;
 }
 
 /* ---- MODEL INFO BAR ---- */
 .model-info-bar {
-    display: flex; align-items: center; justify-content: center;
-    gap: 0; flex-wrap: wrap;
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 12px; padding: 12px 24px;
-    margin: 24px 0 32px;
+display: flex; align-items: center; justify-content: center;
+gap: 0; flex-wrap: wrap;
+background: rgba(255,255,255,0.025);
+border: 1px solid rgba(255,255,255,0.07);
+border-radius: 12px; padding: 12px 24px;
+margin: 24px 0 32px;
 }
 .model-stat { display: flex; flex-direction: column; align-items: center; padding: 0 20px; }
 .ms-label { font-size: 0.6em; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #4a4a62; margin-bottom: 3px; }
@@ -168,76 +175,76 @@ body, .gradio-container {
 
 /* ---- SECTION LABELS ---- */
 .section-label {
-    font-size: 0.62em; font-weight: 700; letter-spacing: 0.18em;
-    text-transform: uppercase; color: #3e3e56;
-    margin-bottom: 10px; padding-bottom: 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+font-size: 0.62em; font-weight: 700; letter-spacing: 0.18em;
+text-transform: uppercase; color: #3e3e56;
+margin-bottom: 10px; padding-bottom: 8px;
+border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
 /* ---- CARDS ---- */
 .card {
-    background: rgba(255,255,255,0.022);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 16px; padding: 20px;
-    transition: border-color 0.25s;
+background: rgba(255,255,255,0.022);
+border: 1px solid rgba(255,255,255,0.06);
+border-radius: 16px; padding: 20px;
+transition: border-color 0.25s;
 }
 .card:hover { border-color: rgba(251,146,60,0.18); }
 
 /* ---- RESULT CARDS ---- */
 .pred-card, .conf-card {
-    background: rgba(255,255,255,0.022) !important;
-    border: 1px solid rgba(255,255,255,0.06) !important;
-    border-radius: 14px !important; padding: 18px 20px !important;
+background: rgba(255,255,255,0.022) !important;
+border: 1px solid rgba(255,255,255,0.06) !important;
+border-radius: 14px !important; padding: 18px 20px !important;
 }
 .pred-label {
-    font-size: 0.6em; font-weight: 700; letter-spacing: 0.18em;
-    text-transform: uppercase; color: #fb923c;
-    margin-bottom: 6px; display: block;
+font-size: 0.6em; font-weight: 700; letter-spacing: 0.18em;
+text-transform: uppercase; color: #fb923c;
+margin-bottom: 6px; display: block;
 }
 .pred-card h3 {
-    font-family: 'Syne', sans-serif !important;
-    font-weight: 800 !important; font-size: 1.5em !important;
-    color: #fff !important; margin: 0 !important; line-height: 1.2 !important;
+font-family: 'Syne', sans-serif !important;
+font-weight: 800 !important; font-size: 1.5em !important;
+color: #fff !important; margin: 0 !important; line-height: 1.2 !important;
 }
 .conf-card h3 {
-    font-family: 'Syne', sans-serif !important;
-    font-size: 2.4em !important; font-weight: 800 !important;
-    background: linear-gradient(135deg, #fb923c, #fbbf24) !important;
-    -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
-    background-clip: text !important; margin: 0 !important;
+font-family: 'Syne', sans-serif !important;
+font-size: 2.4em !important; font-weight: 800 !important;
+background: linear-gradient(135deg, #fb923c, #fbbf24) !important;
+-webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
+background-clip: text !important; margin: 0 !important;
 }
 
 /* ---- ANALYZE BUTTON ---- */
 #analyze-btn {
-    background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%) !important;
-    border: none !important; border-radius: 12px !important;
-    font-family: 'Syne', sans-serif !important; font-weight: 700 !important;
-    font-size: 1em !important; letter-spacing: 0.06em !important;
-    color: #fff !important; padding: 15px !important;
-    width: 100% !important; margin-top: 14px !important;
-    box-shadow: 0 4px 24px rgba(251,146,60,0.28) !important;
-    transition: all 0.2s ease !important; cursor: pointer !important;
+background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%) !important;
+border: none !important; border-radius: 12px !important;
+font-family: 'Syne', sans-serif !important; font-weight: 700 !important;
+font-size: 1em !important; letter-spacing: 0.06em !important;
+color: #fff !important; padding: 15px !important;
+width: 100% !important; margin-top: 14px !important;
+box-shadow: 0 4px 24px rgba(251,146,60,0.28) !important;
+transition: all 0.2s ease !important; cursor: pointer !important;
 }
 #analyze-btn:hover {
-    box-shadow: 0 6px 36px rgba(251,146,60,0.45) !important;
-    transform: translateY(-2px) !important;
+box-shadow: 0 6px 36px rgba(251,146,60,0.45) !important;
+transform: translateY(-2px) !important;
 }
 
 /* ---- NUTRITION ---- */
 .source-badge {
-    display: inline-block;
-    background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25);
-    color: #4ade80; font-size: 0.65em; font-weight: 600;
-    letter-spacing: 0.08em; padding: 2px 10px; border-radius: 100px;
-    vertical-align: middle; margin-left: 6px;
+display: inline-block;
+background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25);
+color: #4ade80; font-size: 0.65em; font-weight: 600;
+letter-spacing: 0.08em; padding: 2px 10px; border-radius: 100px;
+vertical-align: middle; margin-left: 6px;
 }
 .nut-sub { color: #4a4a62 !important; font-size: 0.75em !important; margin: -4px 0 8px !important; }
 .nutrition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 10px; }
 .nut-item {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.025); border-radius: 10px;
-    padding: 9px 12px; border: 1px solid rgba(255,255,255,0.05);
-    transition: background 0.2s;
+display: flex; align-items: center; gap: 10px;
+background: rgba(255,255,255,0.025); border-radius: 10px;
+padding: 9px 12px; border: 1px solid rgba(255,255,255,0.05);
+transition: background 0.2s;
 }
 .nut-item:hover { background: rgba(255,255,255,0.04); }
 .nut-item.cal { grid-column: 1 / -1; background: rgba(251,146,60,0.06); border-color: rgba(251,146,60,0.15); }
@@ -257,18 +264,40 @@ body, .gradio-container {
 
 /* ---- TIP BOX ---- */
 .tip-wrap {
-    background: rgba(251,146,60,0.05);
-    border: 1px solid rgba(251,146,60,0.15);
-    border-left: 3px solid #fb923c;
-    border-radius: 10px; padding: 14px 16px;
-    color: #fcd9aa !important; font-size: 0.9em; line-height: 1.6;
+background: rgba(251,146,60,0.05);
+border: 1px solid rgba(251,146,60,0.15);
+border-left: 3px solid #fb923c;
+border-radius: 10px; padding: 14px 16px;
+color: #fcd9aa !important; font-size: 0.9em; line-height: 1.6;
+}
+
+/* ---- EXAMPLES ---- */
+.examples-section {
+margin-top: 16px;
+}
+.gr-examples .label {
+color: #fb923c !important;
+font-size: 0.65em !important;
+font-weight: 700 !important;
+letter-spacing: 0.14em !important;
+text-transform: uppercase !important;
+}
+.gr-samples-table img {
+border-radius: 10px !important;
+border: 2px solid rgba(255,255,255,0.06) !important;
+transition: border-color 0.2s, transform 0.2s !important;
+cursor: pointer !important;
+}
+.gr-samples-table img:hover {
+border-color: #fb923c !important;
+transform: scale(1.04) !important;
 }
 
 /* ---- FOOTER ---- */
 #footer {
-    text-align: center; padding: 36px 20px;
-    color: #2e2e42; font-size: 0.78em;
-    border-top: 1px solid rgba(255,255,255,0.04); margin-top: 48px;
+text-align: center; padding: 36px 20px;
+color: #2e2e42; font-size: 0.78em;
+border-top: 1px solid rgba(255,255,255,0.04); margin-top: 48px;
 }
 #footer a { color: #fb923c; text-decoration: none; }
 #footer a:hover { text-decoration: underline; }
@@ -281,13 +310,13 @@ label { color: #4a4a62 !important; font-size: 0.72em !important; letter-spacing:
 """
 
 
-with gr.Blocks(title="Food AI — Classification & Nutrition",css=custom_css) as app:
+with gr.Blocks(title="Food AI — Classification & Nutrition", css=custom_css) as app:
 
     gr.HTML("""
     <div id="hero">
-        <div class="hero-eyebrow">✦ Deep Learning · Computer Vision</div>
-        <h1 class="hero-title">Food Recognition<br>& Nutrition AI</h1>
-        <p class="hero-sub">Upload any food photo for instant AI-powered identification and real nutritional data.</p>
+      <div class="hero-eyebrow">✦ Deep Learning · Computer Vision</div>
+      <h1 class="hero-title">Food Recognition<br>& Nutrition AI</h1>
+      <p class="hero-sub">Upload any food photo for instant AI-powered identification and real nutritional data.</p>
     </div>
     """)
 
@@ -306,6 +335,14 @@ with gr.Blocks(title="Food AI — Classification & Nutrition",css=custom_css) as
                 show_label=False,
             )
             predict_button = gr.Button("⚡ Analyze Food", variant="primary", elem_id="analyze-btn")
+
+            # Sample images — click to test instantly
+            gr.Examples(
+                examples=SAMPLE_IMAGES,
+                inputs=image_input,
+                label="🍽️ No image? Click a sample below to test instantly",
+                examples_per_page=6,
+            )
 
         # Right — Results
         with gr.Column(scale=6):
@@ -328,18 +365,18 @@ with gr.Blocks(title="Food AI — Classification & Nutrition",css=custom_css) as
                 show_label=False,
             )
 
-    gr.HTML('<div style="height:20px"></div>')
-    gr.HTML('<div class="section-label">🥗 Nutrition & Health</div>')
+            gr.HTML('<div style="height:20px"></div>')
+            gr.HTML('<div class="section-label">🥗 Nutrition & Health</div>')
 
-    with gr.Row():
-        with gr.Column(scale=5, elem_classes=["card"]):
-            nutrition_output = gr.Markdown()
-        with gr.Column(scale=5):
-            with gr.Column(elem_classes=["card"]):
-                health_score_output = gr.Markdown()
-            gr.HTML('<div style="height:10px"></div>')
-            with gr.Column(elem_classes=["tip-wrap"]):
-                tip_output = gr.Markdown()
+            with gr.Row():
+                with gr.Column(scale=5, elem_classes=["card"]):
+                    nutrition_output = gr.Markdown()
+                with gr.Column(scale=5):
+                    with gr.Column(elem_classes=["card"]):
+                        health_score_output = gr.Markdown()
+                    gr.HTML('<div style="height:10px"></div>')
+                    with gr.Column(elem_classes=["tip-wrap"]):
+                        tip_output = gr.Markdown()
 
     # Hidden error output
     error_output = gr.Markdown(visible=False)
@@ -360,9 +397,9 @@ with gr.Blocks(title="Food AI — Classification & Nutrition",css=custom_css) as
 
     gr.HTML("""
     <div id="footer">
-        TensorFlow &nbsp;·&nbsp; MobileNetV2 &nbsp;·&nbsp; Gradio &nbsp;·&nbsp; USDA FoodData Central &nbsp;·&nbsp; Food101
-        <br><br>
-        <a href="https://github.com" target="_blank">View Source on GitHub →</a>
+      TensorFlow &nbsp;·&nbsp; MobileNetV2 &nbsp;·&nbsp; Gradio &nbsp;·&nbsp; USDA FoodData Central &nbsp;·&nbsp; Food101
+      <br><br>
+      <a href="https://github.com" target="_blank">View Source on GitHub →</a>
     </div>
     """)
 

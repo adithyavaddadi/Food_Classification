@@ -1,54 +1,54 @@
 """
 predict.py
-
 Handles model inference with improved error handling.
 """
-
+import os
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.utils import custom_object_scope
 from PIL import Image, UnidentifiedImageError
-
 from src.config import MODEL_PATH, IMAGE_SIZE, FOOD_CLASSES
 from src.nutrition import get_nutrition_info
 
 # --------------------------------------------------
+# DepthwiseConv2D patch — fixes 'groups' kwarg error
+# when loading models saved with older Keras versions
+# --------------------------------------------------
+class FixedDepthwiseConv2D(tf.keras.layers.DepthwiseConv2D):
+    def __init__(self, *args, **kwargs):
+        kwargs.pop('groups', None)
+        super().__init__(*args, **kwargs)
+
+# --------------------------------------------------
 # Load Model (lazy singleton)
 # --------------------------------------------------
-
 model = None
 
 def load_model():
     global model
     if model is None:
-        model = tf.keras.models.load_model(MODEL_PATH)
-
+        with custom_object_scope({'DepthwiseConv2D': FixedDepthwiseConv2D}):
+            model = tf.keras.models.load_model(MODEL_PATH)
 
 # --------------------------------------------------
 # Image Validation
 # --------------------------------------------------
-
 def validate_image(image):
     """Validate image before prediction."""
     if image is None:
         raise ValueError("No image provided.")
-
     if not isinstance(image, Image.Image):
         raise ValueError("Invalid image format.")
-
     w, h = image.size
     if w < 32 or h < 32:
         raise ValueError("Image is too small. Please upload a clearer photo.")
-
     if w > 8000 or h > 8000:
         raise ValueError("Image is too large. Please upload a smaller photo.")
-
     return True
-
 
 # --------------------------------------------------
 # Image Preprocessing
 # --------------------------------------------------
-
 def preprocess_image(image):
     """Resize, convert and normalize input image."""
     image = image.convert("RGB")
@@ -57,26 +57,21 @@ def preprocess_image(image):
     image = np.expand_dims(image, axis=0)
     return image
 
-
 # --------------------------------------------------
 # Confidence Check
 # --------------------------------------------------
-
 def is_low_confidence(confidence, threshold=0.35):
     """Flag predictions below confidence threshold."""
     return confidence < threshold
 
-
 # --------------------------------------------------
 # Prediction Function
 # --------------------------------------------------
-
 def predict_food(image):
     """
     Predict food class from input image.
     Returns structured result dict with prediction, nutrition, health info.
     """
-
     # Validate image
     validate_image(image)
 
@@ -107,18 +102,18 @@ def predict_food(image):
     if is_low_confidence(top_confidence):
         warning = f"⚠️ Low confidence ({round(top_confidence*100, 1)}%) — this food may not be in our database."
 
-    # Get nutrition (now returns 5 values)
+    # Get nutrition
     nutrition, health_score, tip, category, color = get_nutrition_info(predicted_food)
 
     return {
-        "prediction":   predicted_food,
-        "confidence":   top_confidence,
-        "top3":         top_predictions,
-        "nutrition":    nutrition,
-        "health_score": health_score,
+        "prediction":      predicted_food,
+        "confidence":      top_confidence,
+        "top3":            top_predictions,
+        "nutrition":       nutrition,
+        "health_score":    health_score,
         "health_category": category,
-        "health_color": color,
-        "tip":          tip,
-        "warning":      warning,
-        "total_classes": len(FOOD_CLASSES),
+        "health_color":    color,
+        "tip":             tip,
+        "warning":         warning,
+        "total_classes":   len(FOOD_CLASSES),
     }
