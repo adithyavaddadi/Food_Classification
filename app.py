@@ -29,14 +29,14 @@ MODEL_INFO = f"""
 </div>
 """
 
-# Sample images (URL-based, no upload needed)
+# Sample food images (Wikipedia Commons — free to use)
 SAMPLE_IMAGES = [
-    ["https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg/800px-Eq_it-na_pizza-margherita_sep2005_sml.jpg"],
-    ["https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Biryani_at_Hyderabad%2CIndia.jpg/800px-Biryani_at_Hyderabad%2CIndia.jpg"],
-    ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/800px-Good_Food_Display_-_NCI_Visuals_Online.jpg"],
-    ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG"],
-    ["https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Hapus_Mango.jpg/800px-Hapus_Mango.jpg"],
-    ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Chocolate_covered_strawberries.jpg/800px-Chocolate_covered_strawberries.jpg"],
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg/400px-Eq_it-na_pizza-margherita_sep2005_sml.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Biryani_at_Hyderabad%2CIndia.jpg/400px-Biryani_at_Hyderabad%2CIndia.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/400px-A_small_cup_of_coffee.JPG",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Hapus_Mango.jpg/400px-Hapus_Mango.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/April_blooms_-_tulips_and_ice_cream_%289337088784%29.jpg/400px-April_blooms_-_tulips_and_ice_cream_%289337088784%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/400px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
 ]
 
 
@@ -230,6 +230,28 @@ box-shadow: 0 6px 36px rgba(251,146,60,0.45) !important;
 transform: translateY(-2px) !important;
 }
 
+/* ---- SAMPLE IMAGES ---- */
+.samples-label {
+font-size: 0.62em; font-weight: 700; letter-spacing: 0.18em;
+text-transform: uppercase; color: #3e3e56;
+margin: 18px 0 10px; padding-bottom: 8px;
+border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.gr-samples-table td { padding: 4px !important; }
+.gr-samples-table img {
+border-radius: 10px !important;
+border: 1px solid rgba(255,255,255,0.07) !important;
+transition: all 0.2s ease !important;
+object-fit: cover !important;
+width: 80px !important; height: 80px !important;
+}
+.gr-samples-table img:hover {
+border-color: rgba(251,146,60,0.5) !important;
+transform: scale(1.05) !important;
+box-shadow: 0 4px 16px rgba(251,146,60,0.25) !important;
+}
+.gr-samples-table tr { cursor: pointer !important; }
+
 /* ---- NUTRITION ---- */
 .source-badge {
 display: inline-block;
@@ -271,28 +293,6 @@ border-radius: 10px; padding: 14px 16px;
 color: #fcd9aa !important; font-size: 0.9em; line-height: 1.6;
 }
 
-/* ---- EXAMPLES ---- */
-.examples-section {
-margin-top: 16px;
-}
-.gr-examples .label {
-color: #fb923c !important;
-font-size: 0.65em !important;
-font-weight: 700 !important;
-letter-spacing: 0.14em !important;
-text-transform: uppercase !important;
-}
-.gr-samples-table img {
-border-radius: 10px !important;
-border: 2px solid rgba(255,255,255,0.06) !important;
-transition: border-color 0.2s, transform 0.2s !important;
-cursor: pointer !important;
-}
-.gr-samples-table img:hover {
-border-color: #fb923c !important;
-transform: scale(1.04) !important;
-}
-
 /* ---- FOOTER ---- */
 #footer {
 text-align: center; padding: 36px 20px;
@@ -314,9 +314,9 @@ with gr.Blocks(title="Food AI — Classification & Nutrition", css=custom_css) a
 
     gr.HTML("""
     <div id="hero">
-      <div class="hero-eyebrow">✦ Deep Learning · Computer Vision</div>
-      <h1 class="hero-title">Food Recognition<br>& Nutrition AI</h1>
-      <p class="hero-sub">Upload any food photo for instant AI-powered identification and real nutritional data.</p>
+        <div class="hero-eyebrow">✦ Deep Learning · Computer Vision</div>
+        <h1 class="hero-title">Food Recognition<br>& Nutrition AI</h1>
+        <p class="hero-sub">Upload any food photo for instant AI-powered identification and real nutritional data.</p>
     </div>
     """)
 
@@ -334,15 +334,23 @@ with gr.Blocks(title="Food AI — Classification & Nutrition", css=custom_css) a
                 height=300,
                 show_label=False,
             )
-            predict_button = gr.Button("⚡ Analyze Food", variant="primary", elem_id="analyze-btn")
 
-            # Sample images — click to test instantly
+            gr.HTML('<div class="samples-label">🍽️ Or click a sample to test instantly</div>')
             gr.Examples(
-                examples=SAMPLE_IMAGES,
+                examples=[
+                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg/400px-Eq_it-na_pizza-margherita_sep2005_sml.jpg"],
+                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Biryani_at_Hyderabad%2CIndia.jpg/400px-Biryani_at_Hyderabad%2CIndia.jpg"],
+                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/400px-A_small_cup_of_coffee.JPG"],
+                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Hapus_Mango.jpg/400px-Hapus_Mango.jpg"],
+                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/April_blooms_-_tulips_and_ice_cream_%289337088784%29.jpg/400px-April_blooms_-_tulips_and_ice_cream_%289337088784%29.jpg"],
+                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/400px-Good_Food_Display_-_NCI_Visuals_Online.jpg"],
+                ],
                 inputs=image_input,
-                label="🍽️ No image? Click a sample below to test instantly",
+                label="",
                 examples_per_page=6,
             )
+
+            predict_button = gr.Button("⚡ Analyze Food", variant="primary", elem_id="analyze-btn")
 
         # Right — Results
         with gr.Column(scale=6):
@@ -397,9 +405,9 @@ with gr.Blocks(title="Food AI — Classification & Nutrition", css=custom_css) a
 
     gr.HTML("""
     <div id="footer">
-      TensorFlow &nbsp;·&nbsp; MobileNetV2 &nbsp;·&nbsp; Gradio &nbsp;·&nbsp; USDA FoodData Central &nbsp;·&nbsp; Food101
-      <br><br>
-      <a href="https://github.com" target="_blank">View Source on GitHub →</a>
+        TensorFlow &nbsp;·&nbsp; MobileNetV2 &nbsp;·&nbsp; Gradio &nbsp;·&nbsp; USDA FoodData Central &nbsp;·&nbsp; Food101
+        <br><br>
+        <a href="https://github.com" target="_blank">View Source on GitHub →</a>
     </div>
     """)
 
