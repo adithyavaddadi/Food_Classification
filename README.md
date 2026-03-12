@@ -1,6 +1,6 @@
----
+﻿---
 title: Food Classification
-emoji: 🍕
+emoji: ≡ƒìò
 colorFrom: red
 colorTo: yellow
 sdk: gradio
@@ -9,19 +9,19 @@ python_version: "3.13"
 app_file: app.py
 pinned: false
 ---
-# 🍔 Food Recognition & Nutrition AI
+# ≡ƒìö Food Recognition & Nutrition AI
 
 > Deep learning model that identifies food from images and provides real-time nutritional analysis powered by USDA FoodData Central.
 
-![Python](https://img.shields.io/badge/Python-3.11-blue?style=flat-square&logo=python)
-![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-orange?style=flat-square&logo=tensorflow)
-![Gradio](https://img.shields.io/badge/Gradio-UI-purple?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.13-blue?style=flat-square&logo=python)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.20-orange?style=flat-square&logo=tensorflow)
+![Gradio](https://img.shields.io/badge/Gradio-5.23-purple?style=flat-square)
 ![Model](https://img.shields.io/badge/Model-MobileNetV2-green?style=flat-square)
 ![Dataset](https://img.shields.io/badge/Dataset-Food101-red?style=flat-square)
 
 ---
 
-## 📸 Screenshots
+## ≡ƒô╕ Screenshots
 
 ![Hero](assets/screenshots/hero.png)
 
@@ -31,58 +31,58 @@ pinned: false
 
 ---
 
-## ✨ Features
+## Γ£¿ Features
 
-- **AI Food Classification** — MobileNetV2 Transfer Learning on Food101 dataset
-- **97%+ Accuracy** — on trained food classes
-- **Real Nutrition Data** — pulled live from USDA FoodData Central API
-- **Health Scoring** — multi-factor WHO-guideline based health score (1–10)
-- **Top 3 Predictions** — with confidence percentages
-- **Webcam Support** — capture food in real time
-- **Smart Error Handling** — low confidence warnings, image validation
+- **AI Food Classification** ΓÇö MobileNetV2 Transfer Learning on Food101 dataset
+- **97%+ Accuracy** ΓÇö on trained food classes
+- **Real Nutrition Data** ΓÇö pulled live from USDA FoodData Central API
+- **Health Scoring** ΓÇö multi-factor WHO-guideline based health score (1ΓÇô10)
+- **Top 3 Predictions** ΓÇö with confidence percentages
+- **Webcam Support** ΓÇö capture food in real time
+- **Smart Error Handling** ΓÇö low confidence warnings, image validation
 
 ---
 
-## 🏗️ Architecture
+## ≡ƒÅù∩╕Å Architecture
 
 ```
-Input Image (224×224)
-        ↓
+Input Image (224├ù224)
+        Γåô
 MobileNetV2 (pretrained ImageNet, frozen)
-        ↓
+        Γåô
 GlobalAveragePooling2D
-        ↓
-BatchNormalization → Dropout(0.3)
-        ↓
+        Γåô
+BatchNormalization ΓåÆ Dropout(0.3)
+        Γåô
 Dense(128, ReLU)
-        ↓
+        Γåô
 Dropout(0.15)
-        ↓
-Dense(10, Softmax) → Food Class
+        Γåô
+Dense(10, Softmax) ΓåÆ Food Class
 ```
 
 **Two-phase training:**
-- **Phase 1** — Feature extraction (base frozen, 10 epochs, lr=1e-3)
-- **Phase 2** — Fine-tuning (top 30 layers unfrozen, 5 epochs, lr=1e-5)
+- **Phase 1** ΓÇö Feature extraction (base frozen, 10 epochs, lr=1e-3)
+- **Phase 2** ΓÇö Fine-tuning (top 30 layers unfrozen, 5 epochs, lr=1e-5)
 
 ---
 
-## 📊 Model Performance
+## ≡ƒôè Model Performance
 
 | Metric | Value |
 |---|---|
 | Architecture | MobileNetV2 + Custom Head |
 | Dataset | Food101 (10 classes, 10% subset) |
-| Input Size | 224 × 224 × 3 |
+| Input Size | 224 ├ù 224 ├ù 3 |
 | Parameters | ~2.3M trainable |
 | Top-1 Confidence | 97.97% (baklava), 81.18% (apple pie) |
 | Training Strategy | Transfer Learning + Fine-tuning |
 
-> 🚧 **Roadmap:** Retraining on all 101 classes currently in progress on Kaggle GPU.
+> ≡ƒÜº **Roadmap:** Retraining on all 101 classes currently in progress on Kaggle GPU.
 
 ---
 
-## 🍽️ Supported Food Classes (v1.0)
+## ≡ƒì╜∩╕Å Supported Food Classes (v1.0)
 
 | # | Class | # | Class |
 |---|---|---|---|
@@ -94,7 +94,7 @@ Dense(10, Softmax) → Food Class
 
 ---
 
-## 🚀 Quick Start
+## ≡ƒÜÇ Quick Start
 
 ### 1. Clone the repo
 ```bash
@@ -139,34 +139,34 @@ Open **http://localhost:7860**
 
 ---
 
-## 📁 Project Structure
+## ≡ƒôü Project Structure
 
 ```
 food-classification/
-├── app.py                  # Gradio UI
-├── requirements.txt
-├── README.md
-├── assets/
-│   └── screenshots/        # Demo screenshots
-├── src/
-│   ├── config.py           # Hyperparameters & paths
-│   ├── dataset.py          # Food101 data loading
-│   ├── model.py            # MobileNetV2 architecture
-│   ├── train.py            # Training pipeline
-│   ├── predict.py          # Inference + error handling
-│   ├── evaluate.py         # Metrics & confusion matrix
-│   └── nutrition.py        # USDA API + health scoring
-├── data/
-│   └── food101/            # Dataset (auto-downloaded)
-└── results/
-    ├── model/              # Saved model weights
-    ├── plots/              # Training curves
-    └── logs/               # TensorBoard logs
+Γö£ΓöÇΓöÇ app.py                  # Gradio UI
+Γö£ΓöÇΓöÇ requirements.txt
+Γö£ΓöÇΓöÇ README.md
+Γö£ΓöÇΓöÇ assets/
+Γöé   ΓööΓöÇΓöÇ screenshots/        # Demo screenshots
+Γö£ΓöÇΓöÇ src/
+Γöé   Γö£ΓöÇΓöÇ config.py           # Hyperparameters & paths
+Γöé   Γö£ΓöÇΓöÇ dataset.py          # Food101 data loading
+Γöé   Γö£ΓöÇΓöÇ model.py            # MobileNetV2 architecture
+Γöé   Γö£ΓöÇΓöÇ train.py            # Training pipeline
+Γöé   Γö£ΓöÇΓöÇ predict.py          # Inference + error handling
+Γöé   Γö£ΓöÇΓöÇ evaluate.py         # Metrics & confusion matrix
+Γöé   ΓööΓöÇΓöÇ nutrition.py        # USDA API + health scoring
+Γö£ΓöÇΓöÇ data/
+Γöé   ΓööΓöÇΓöÇ food101/            # Dataset (auto-downloaded)
+ΓööΓöÇΓöÇ results/
+    Γö£ΓöÇΓöÇ model/              # Saved model weights
+    Γö£ΓöÇΓöÇ plots/              # Training curves
+    ΓööΓöÇΓöÇ logs/               # TensorBoard logs
 ```
 
 ---
 
-## 🧠 Tech Stack
+## ≡ƒºá Tech Stack
 
 | Component | Technology |
 |---|---|
@@ -179,15 +179,15 @@ food-classification/
 
 ---
 
-## 📈 Training Details
+## ≡ƒôê Training Details
 
 ```python
-# Phase 1 — Feature Extraction
+# Phase 1 ΓÇö Feature Extraction
 optimizer = Adam(lr=1e-3)
 epochs    = 10
 frozen    = all MobileNetV2 layers
 
-# Phase 2 — Fine Tuning
+# Phase 2 ΓÇö Fine Tuning
 optimizer = Adam(lr=1e-5)
 epochs    = 5
 unfrozen  = top 30 layers of MobileNetV2
@@ -197,7 +197,7 @@ Callbacks: `EarlyStopping`, `ModelCheckpoint`, `ReduceLROnPlateau`, `TensorBoard
 
 ---
 
-## 🔮 Roadmap
+## ≡ƒö« Roadmap
 
 - [x] 10-class Food101 classifier
 - [x] Real nutrition data via USDA API
@@ -210,7 +210,7 @@ Callbacks: `EarlyStopping`, `ModelCheckpoint`, `ReduceLROnPlateau`, `TensorBoard
 
 ---
 
-## 👤 Author
+## ≡ƒæñ Author
 
 **Adithya**
 - GitHub: [@adithyavaddadi](https://github.com/adithyavaddadi)
@@ -218,10 +218,10 @@ Callbacks: `EarlyStopping`, `ModelCheckpoint`, `ReduceLROnPlateau`, `TensorBoard
 
 ---
 
-## 📄 License
+## ≡ƒôä License
 
-MIT License — feel free to use and modify.
+MIT License ΓÇö feel free to use and modify.
 
 ---
 
-<p align="center">Built with ❤️ using TensorFlow · MobileNetV2 · Gradio · USDA FoodData Central</p>
+<p align="center">Built with Γ¥ñ∩╕Å using TensorFlow ┬╖ MobileNetV2 ┬╖ Gradio ┬╖ USDA FoodData Central</p>
