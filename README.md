@@ -1,6 +1,6 @@
 ﻿---
 title: Food Classification
-emoji: ≡ƒìò
+emoji: "🍕"
 colorFrom: red
 colorTo: yellow
 sdk: gradio
@@ -225,3 +225,4 @@ MIT License ΓÇö feel free to use and modify.
 ---
 
 <p align="center">Built with Γ¥ñ∩╕Å using TensorFlow ┬╖ MobileNetV2 ┬╖ Gradio ┬╖ USDA FoodData Central</p>
+
