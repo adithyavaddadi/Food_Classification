@@ -1,15 +1,4 @@
-﻿---
-title: Food Classification
-emoji: "🍕"
-colorFrom: red
-colorTo: yellow
-sdk: gradio
-sdk_version: "5.23.0"
-python_version: "3.13"
-app_file: app.py
-pinned: false
----
-# ≡ƒìö Food Recognition & Nutrition AI
+# 🍕 Food Recognition & Nutrition AI
 
 > Deep learning model that identifies food from images and provides real-time nutritional analysis powered by USDA FoodData Central.
 
@@ -21,7 +10,7 @@ pinned: false
 
 ---
 
-## ≡ƒô╕ Screenshots
+## 📸 Screenshots
 
 ![Hero](assets/screenshots/hero.png)
 
@@ -31,58 +20,60 @@ pinned: false
 
 ---
 
-## Γ£¿ Features
+## ✨ Features
 
-- **AI Food Classification** ΓÇö MobileNetV2 Transfer Learning on Food101 dataset
-- **97%+ Accuracy** ΓÇö on trained food classes
-- **Real Nutrition Data** ΓÇö pulled live from USDA FoodData Central API
-- **Health Scoring** ΓÇö multi-factor WHO-guideline based health score (1ΓÇô10)
-- **Top 3 Predictions** ΓÇö with confidence percentages
-- **Webcam Support** ΓÇö capture food in real time
-- **Smart Error Handling** ΓÇö low confidence warnings, image validation
+- **AI Food Classification** — MobileNetV2 Transfer Learning on Food101 dataset.
+- **97%+ Accuracy** — High precision on trained food classes.
+- **Real Nutrition Data** — Pulled live from USDA FoodData Central API.
+- **Health Scoring** — Multi-factor WHO-guideline based health score (1–10).
+- **Top 3 Predictions** — View results with confidence percentages.
+- **Webcam Support** — Capture and classify food in real time.
+- **Smart Error Handling** — Includes low confidence warnings and image validation.
 
 ---
 
-## ≡ƒÅù∩╕Å Architecture
+## 🏗️ Architecture
 
-```
-Input Image (224├ù224)
-        Γåô
+```text
+Input Image (224 × 224)
+        ↓
 MobileNetV2 (pretrained ImageNet, frozen)
-        Γåô
+        ↓
 GlobalAveragePooling2D
-        Γåô
-BatchNormalization ΓåÆ Dropout(0.3)
-        Γåô
+        ↓
+BatchNormalization → Dropout(0.3)
+        ↓
 Dense(128, ReLU)
-        Γåô
+        ↓
 Dropout(0.15)
-        Γåô
-Dense(10, Softmax) ΓåÆ Food Class
+        ↓
+Dense(10, Softmax) → Food Class
 ```
 
 **Two-phase training:**
-- **Phase 1** ΓÇö Feature extraction (base frozen, 10 epochs, lr=1e-3)
-- **Phase 2** ΓÇö Fine-tuning (top 30 layers unfrozen, 5 epochs, lr=1e-5)
+- **Phase 1** — Feature extraction (base frozen, 10 epochs, lr=1e-3)
+- **Phase 2** — Fine-tuning (top 30 layers unfrozen, 5 epochs, lr=1e-5)
 
 ---
 
-## ≡ƒôè Model Performance
+## 📊 Model Performance
 
 | Metric | Value |
 |---|---|
 | Architecture | MobileNetV2 + Custom Head |
 | Dataset | Food101 (10 classes, 10% subset) |
-| Input Size | 224 ├ù 224 ├ù 3 |
+| Input Size | 224 × 224 × 3 |
 | Parameters | ~2.3M trainable |
 | Top-1 Confidence | 97.97% (baklava), 81.18% (apple pie) |
 | Training Strategy | Transfer Learning + Fine-tuning |
 
-> ≡ƒÜº **Roadmap:** Retraining on all 101 classes currently in progress on Kaggle GPU.
+---
+
+> 🚧 **Roadmap:** Retraining on all 101 classes currently in progress on Kaggle GPU.
 
 ---
 
-## ≡ƒì╜∩╕Å Supported Food Classes (v1.0)
+## 🍽️ Supported Food Classes (v1.0)
 
 | # | Class | # | Class |
 |---|---|---|---|
@@ -94,15 +85,17 @@ Dense(10, Softmax) ΓåÆ Food Class
 
 ---
 
-## ≡ƒÜÇ Quick Start
+## 🚀 Quick Start
 
 ### 1. Clone the repo
+
 ```bash
 git clone https://github.com/adithyavaddadi/food-classification.git
 cd food-classification
 ```
 
 ### 2. Create virtual environment
+
 ```bash
 python -m venv venv
 venv\Scripts\activate      # Windows
@@ -110,94 +103,91 @@ source venv/bin/activate   # Mac/Linux
 ```
 
 ### 3. Install dependencies
+
 ```bash
 pip install -r requirements.txt
-tensorflow-cpu==2.21.0
-keras==3.12.0
-tensorflow-datasets==4.9.4
-numpy==2.1.0
-pandas==2.2.3
-scikit-learn==1.5.2
-matplotlib==3.10.0
-seaborn==0.13.2
-requests==2.31.0
-python-dotenv==1.0.1
-Pillow==10.4.0
-gradio==5.23.0
 ```
 
+> **requirements.txt** includes:
+> `tensorflow-cpu`, `keras`, `tensorflow-datasets`, `numpy`, `pandas`,
+> `scikit-learn`, `matplotlib`, `seaborn`, `requests`, `python-dotenv`,
+> `Pillow`, `gradio`
+
 ### 4. Add your trained model
+
 ```
 results/model/food_classifier.h5
 ```
 
 ### 5. Run the app
+
 ```bash
 python app.py
 ```
+
 Open **http://localhost:7860**
 
 ---
 
-## ≡ƒôü Project Structure
+## 📂 Project Structure
 
 ```
 food-classification/
-Γö£ΓöÇΓöÇ app.py                  # Gradio UI
-Γö£ΓöÇΓöÇ requirements.txt
-Γö£ΓöÇΓöÇ README.md
-Γö£ΓöÇΓöÇ assets/
-Γöé   ΓööΓöÇΓöÇ screenshots/        # Demo screenshots
-Γö£ΓöÇΓöÇ src/
-Γöé   Γö£ΓöÇΓöÇ config.py           # Hyperparameters & paths
-Γöé   Γö£ΓöÇΓöÇ dataset.py          # Food101 data loading
-Γöé   Γö£ΓöÇΓöÇ model.py            # MobileNetV2 architecture
-Γöé   Γö£ΓöÇΓöÇ train.py            # Training pipeline
-Γöé   Γö£ΓöÇΓöÇ predict.py          # Inference + error handling
-Γöé   Γö£ΓöÇΓöÇ evaluate.py         # Metrics & confusion matrix
-Γöé   ΓööΓöÇΓöÇ nutrition.py        # USDA API + health scoring
-Γö£ΓöÇΓöÇ data/
-Γöé   ΓööΓöÇΓöÇ food101/            # Dataset (auto-downloaded)
-ΓööΓöÇΓöÇ results/
-    Γö£ΓöÇΓöÇ model/              # Saved model weights
-    Γö£ΓöÇΓöÇ plots/              # Training curves
-    ΓööΓöÇΓöÇ logs/               # TensorBoard logs
+├── app.py                # Gradio UI
+├── requirements.txt
+├── README.md
+├── assets/
+│   └── screenshots/      # Demo screenshots
+├── src/
+│   ├── config.py         # Hyperparameters & paths
+│   ├── dataset.py        # Food101 data loading
+│   ├── model.py          # MobileNetV2 architecture
+│   ├── train.py          # Training pipeline
+│   ├── predict.py        # Inference + error handling
+│   ├── evaluate.py       # Metrics & confusion matrix
+│   └── nutrition.py      # USDA API + health scoring
+├── data/
+│   └── food101/          # Dataset (auto-downloaded)
+└── results/
+    ├── model/            # Saved model weights
+    ├── plots/            # Training curves
+    └── logs/             # TensorBoard logs
 ```
 
 ---
 
-## ≡ƒºá Tech Stack
+## 🧠 Tech Stack
 
 | Component | Technology |
 |---|---|
-| Deep Learning | TensorFlow 2.15 + Keras |
+| Deep Learning | TensorFlow 2.20 + Keras |
 | Base Model | MobileNetV2 (ImageNet pretrained) |
 | Dataset | Food101 via TensorFlow Datasets |
-| UI | Gradio 6.0 |
+| UI | Gradio 5.23 |
 | Nutrition API | USDA FoodData Central |
-| Language | Python 3.11 |
+| Language | Python 3.13 |
 
 ---
 
-## ≡ƒôê Training Details
+## 📈 Training Details
 
 ```python
-# Phase 1 ΓÇö Feature Extraction
-optimizer = Adam(lr=1e-3)
+# Phase 1 — Feature Extraction
+optimizer = Adam(learning_rate=1e-3)
 epochs    = 10
-frozen    = all MobileNetV2 layers
+# All MobileNetV2 layers frozen
 
-# Phase 2 ΓÇö Fine Tuning
-optimizer = Adam(lr=1e-5)
+# Phase 2 — Fine Tuning
+optimizer = Adam(learning_rate=1e-5)
 epochs    = 5
-unfrozen  = top 30 layers of MobileNetV2
+# Top 30 layers of MobileNetV2 unfrozen
 ```
 
 Callbacks: `EarlyStopping`, `ModelCheckpoint`, `ReduceLROnPlateau`, `TensorBoard`
 
 ---
 
-## ≡ƒö« Roadmap
+## 🔮 Roadmap
 
 - [x] 10-class Food101 classifier
 - [x] Real nutrition data via USDA API
@@ -210,19 +200,16 @@ Callbacks: `EarlyStopping`, `ModelCheckpoint`, `ReduceLROnPlateau`, `TensorBoard
 
 ---
 
-## ≡ƒæñ Author
+## 👤 The Author
 
 **Adithya**
 - GitHub: [@adithyavaddadi](https://github.com/adithyavaddadi)
-- LinkedIn: [your-linkedin](https://www.linkedin.com/in/adithya-vaddadi-536176330/)
+- LinkedIn: [adithya-vaddadi](https://www.linkedin.com/in/adithya-vaddadi-536176330/)
 
 ---
 
-## ≡ƒôä License
+## 📄 License
 
-MIT License ΓÇö feel free to use and modify.
+MIT License — feel free to use and modify.
 
----
-
-<p align="center">Built with Γ¥ñ∩╕Å using TensorFlow ┬╖ MobileNetV2 ┬╖ Gradio ┬╖ USDA FoodData Central</p>
-
+<p align="center">Built with ❤️ using TensorFlow • MobileNetV2 • Gradio • USDA FoodData Central</p>
