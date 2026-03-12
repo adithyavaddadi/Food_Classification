@@ -1,5 +1,3 @@
-from src.predict import predict_food
-from src.config import FOOD_CLASSES
 import os
 import warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -10,9 +8,36 @@ warnings.filterwarnings('ignore')
 app.py — Food Classification & Nutrition Analysis AI
 """
 
+import urllib.request
 import gradio as gr
 from src.predict import predict_food
 from src.config import FOOD_CLASSES
+
+# --------------------------------------------------
+# Download sample images at startup (local files)
+# --------------------------------------------------
+SAMPLES_DIR = "/app/data/samples"
+os.makedirs(SAMPLES_DIR, exist_ok=True)
+
+SAMPLE_URLS = {
+    "pizza.jpg":       "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg/400px-Eq_it-na_pizza-margherita_sep2005_sml.jpg",
+    "biryani.jpg":     "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Biryani_at_Hyderabad%2CIndia.jpg/400px-Biryani_at_Hyderabad%2CIndia.jpg",
+    "coffee.jpg":      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/400px-A_small_cup_of_coffee.JPG",
+    "mango.jpg":       "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Hapus_Mango.jpg/400px-Hapus_Mango.jpg",
+    "salad.jpg":       "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/400px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
+    "strawberry.jpg":  "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Chocolate_covered_strawberries.jpg/400px-Chocolate_covered_strawberries.jpg",
+}
+
+SAMPLE_PATHS = []
+for filename, url in SAMPLE_URLS.items():
+    path = os.path.join(SAMPLES_DIR, filename)
+    if not os.path.exists(path):
+        try:
+            urllib.request.urlretrieve(url, path)
+        except Exception:
+            pass
+    if os.path.exists(path):
+        SAMPLE_PATHS.append([path])
 
 
 MODEL_INFO = f"""
@@ -28,16 +53,6 @@ MODEL_INFO = f"""
 <div class='model-stat'><span class='ms-label'>Input Size</span><span class='ms-val'>224 × 224</span></div>
 </div>
 """
-
-# Sample food images (Wikipedia Commons — free to use)
-SAMPLE_IMAGES = [
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg/400px-Eq_it-na_pizza-margherita_sep2005_sml.jpg",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Biryani_at_Hyderabad%2CIndia.jpg/400px-Biryani_at_Hyderabad%2CIndia.jpg",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/400px-A_small_cup_of_coffee.JPG",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Hapus_Mango.jpg/400px-Hapus_Mango.jpg",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/April_blooms_-_tulips_and_ice_cream_%289337088784%29.jpg/400px-April_blooms_-_tulips_and_ice_cream_%289337088784%29.jpg",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/400px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
-]
 
 
 def classify_food(image):
@@ -119,7 +134,6 @@ min-height: 100vh;
 
 .gradio-container { max-width: 1240px !important; margin: 0 auto !important; padding: 0 20px !important; }
 
-/* ---- HERO ---- */
 #hero {
 text-align: center;
 padding: 56px 20px 32px;
@@ -159,7 +173,6 @@ max-width: 400px; margin: 0 auto; line-height: 1.65;
 position: relative; z-index: 1;
 }
 
-/* ---- MODEL INFO BAR ---- */
 .model-info-bar {
 display: flex; align-items: center; justify-content: center;
 gap: 0; flex-wrap: wrap;
@@ -173,7 +186,6 @@ margin: 24px 0 32px;
 .ms-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9em; color: #c8c8d8; }
 .model-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.06); }
 
-/* ---- SECTION LABELS ---- */
 .section-label {
 font-size: 0.62em; font-weight: 700; letter-spacing: 0.18em;
 text-transform: uppercase; color: #3e3e56;
@@ -181,7 +193,6 @@ margin-bottom: 10px; padding-bottom: 8px;
 border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
-/* ---- CARDS ---- */
 .card {
 background: rgba(255,255,255,0.022);
 border: 1px solid rgba(255,255,255,0.06);
@@ -190,7 +201,6 @@ transition: border-color 0.25s;
 }
 .card:hover { border-color: rgba(251,146,60,0.18); }
 
-/* ---- RESULT CARDS ---- */
 .pred-card, .conf-card {
 background: rgba(255,255,255,0.022) !important;
 border: 1px solid rgba(255,255,255,0.06) !important;
@@ -214,7 +224,6 @@ background: linear-gradient(135deg, #fb923c, #fbbf24) !important;
 background-clip: text !important; margin: 0 !important;
 }
 
-/* ---- ANALYZE BUTTON ---- */
 #analyze-btn {
 background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%) !important;
 border: none !important; border-radius: 12px !important;
@@ -230,29 +239,6 @@ box-shadow: 0 6px 36px rgba(251,146,60,0.45) !important;
 transform: translateY(-2px) !important;
 }
 
-/* ---- SAMPLE IMAGES ---- */
-.samples-label {
-font-size: 0.62em; font-weight: 700; letter-spacing: 0.18em;
-text-transform: uppercase; color: #3e3e56;
-margin: 18px 0 10px; padding-bottom: 8px;
-border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.gr-samples-table td { padding: 4px !important; }
-.gr-samples-table img {
-border-radius: 10px !important;
-border: 1px solid rgba(255,255,255,0.07) !important;
-transition: all 0.2s ease !important;
-object-fit: cover !important;
-width: 80px !important; height: 80px !important;
-}
-.gr-samples-table img:hover {
-border-color: rgba(251,146,60,0.5) !important;
-transform: scale(1.05) !important;
-box-shadow: 0 4px 16px rgba(251,146,60,0.25) !important;
-}
-.gr-samples-table tr { cursor: pointer !important; }
-
-/* ---- NUTRITION ---- */
 .source-badge {
 display: inline-block;
 background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25);
@@ -276,7 +262,6 @@ transition: background 0.2s;
 .nut-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95em; color: #e8e8f0; }
 .nut-val em { font-style: normal; font-weight: 400; font-size: 0.78em; color: #4a4a62; margin-left: 2px; }
 
-/* ---- HEALTH SCORE ---- */
 .health-bar-wrap { display: flex; align-items: center; gap: 14px; margin-top: 12px; }
 .health-bar-bg { flex: 1; height: 10px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
 .health-bar-fill { height: 100%; border-radius: 100px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
@@ -284,7 +269,6 @@ transition: background 0.2s;
 .health-denom { font-size: 0.45em; opacity: 0.5; font-weight: 400; }
 .health-category { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75em; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 6px; }
 
-/* ---- TIP BOX ---- */
 .tip-wrap {
 background: rgba(251,146,60,0.05);
 border: 1px solid rgba(251,146,60,0.15);
@@ -293,7 +277,6 @@ border-radius: 10px; padding: 14px 16px;
 color: #fcd9aa !important; font-size: 0.9em; line-height: 1.6;
 }
 
-/* ---- FOOTER ---- */
 #footer {
 text-align: center; padding: 36px 20px;
 color: #2e2e42; font-size: 0.78em;
@@ -302,7 +285,6 @@ border-top: 1px solid rgba(255,255,255,0.04); margin-top: 48px;
 #footer a { color: #fb923c; text-decoration: none; }
 #footer a:hover { text-decoration: underline; }
 
-/* ---- GRADIO OVERRIDES ---- */
 footer { display: none !important; }
 .block { background: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important; }
 label { color: #4a4a62 !important; font-size: 0.72em !important; letter-spacing: 0.08em !important; font-weight: 600 !important; }
@@ -314,9 +296,9 @@ with gr.Blocks(title="Food AI — Classification & Nutrition", css=custom_css) a
 
     gr.HTML("""
     <div id="hero">
-        <div class="hero-eyebrow">✦ Deep Learning · Computer Vision</div>
-        <h1 class="hero-title">Food Recognition<br>& Nutrition AI</h1>
-        <p class="hero-sub">Upload any food photo for instant AI-powered identification and real nutritional data.</p>
+      <div class="hero-eyebrow">✦ Deep Learning · Computer Vision</div>
+      <h1 class="hero-title">Food Recognition<br>& Nutrition AI</h1>
+      <p class="hero-sub">Upload any food photo for instant AI-powered identification and real nutritional data.</p>
     </div>
     """)
 
@@ -324,7 +306,6 @@ with gr.Blocks(title="Food AI — Classification & Nutrition", css=custom_css) a
 
     with gr.Row(equal_height=False):
 
-        # Left — Input
         with gr.Column(scale=4):
             gr.HTML('<div class="section-label">📷 Upload Image</div>')
             image_input = gr.Image(
@@ -334,25 +315,16 @@ with gr.Blocks(title="Food AI — Classification & Nutrition", css=custom_css) a
                 height=300,
                 show_label=False,
             )
-
-            gr.HTML('<div class="samples-label">🍽️ Or click a sample to test instantly</div>')
-            gr.Examples(
-                examples=[
-                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg/400px-Eq_it-na_pizza-margherita_sep2005_sml.jpg"],
-                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Biryani_at_Hyderabad%2CIndia.jpg/400px-Biryani_at_Hyderabad%2CIndia.jpg"],
-                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/400px-A_small_cup_of_coffee.JPG"],
-                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Hapus_Mango.jpg/400px-Hapus_Mango.jpg"],
-                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/April_blooms_-_tulips_and_ice_cream_%289337088784%29.jpg/400px-April_blooms_-_tulips_and_ice_cream_%289337088784%29.jpg"],
-                    ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/400px-Good_Food_Display_-_NCI_Visuals_Online.jpg"],
-                ],
-                inputs=image_input,
-                label="",
-                examples_per_page=6,
-            )
-
             predict_button = gr.Button("⚡ Analyze Food", variant="primary", elem_id="analyze-btn")
 
-        # Right — Results
+            if SAMPLE_PATHS:
+                gr.Examples(
+                    examples=SAMPLE_PATHS,
+                    inputs=image_input,
+                    label="🍽️ Click a sample to test instantly",
+                    examples_per_page=6,
+                )
+
         with gr.Column(scale=6):
             gr.HTML('<div class="section-label">🎯 Prediction</div>')
             with gr.Row(equal_height=True):
@@ -386,7 +358,6 @@ with gr.Blocks(title="Food AI — Classification & Nutrition", css=custom_css) a
                     with gr.Column(elem_classes=["tip-wrap"]):
                         tip_output = gr.Markdown()
 
-    # Hidden error output
     error_output = gr.Markdown(visible=False)
 
     predict_button.click(
@@ -405,9 +376,9 @@ with gr.Blocks(title="Food AI — Classification & Nutrition", css=custom_css) a
 
     gr.HTML("""
     <div id="footer">
-        TensorFlow &nbsp;·&nbsp; MobileNetV2 &nbsp;·&nbsp; Gradio &nbsp;·&nbsp; USDA FoodData Central &nbsp;·&nbsp; Food101
-        <br><br>
-        <a href="https://github.com" target="_blank">View Source on GitHub →</a>
+      TensorFlow &nbsp;·&nbsp; MobileNetV2 &nbsp;·&nbsp; Gradio &nbsp;·&nbsp; USDA FoodData Central &nbsp;·&nbsp; Food101
+      <br><br>
+      <a href="https://github.com/adithyavaddadi/Food_Classification" target="_blank">View Source on GitHub →</a>
     </div>
     """)
 
