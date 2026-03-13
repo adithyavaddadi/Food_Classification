@@ -1,3 +1,16 @@
+﻿---
+title: Food Classification
+emoji: 🍕
+colorFrom: red
+colorTo: yellow
+sdk: gradio
+sdk_version: "5.23.0"
+python_version: "3.13"
+app_file: app.py
+pinned: false
+---
+
+
 # 🍕 Food Recognition & Nutrition AI
 
 > Deep learning model that identifies food from images and provides real-time nutritional analysis powered by USDA FoodData Central.
