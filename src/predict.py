@@ -1,12 +1,12 @@
 """
 predict.py - Handles model inference with improved error handling.
 """
-import os
 import numpy as np
 import tensorflow as tf
 from PIL import Image
 from src.config import MODEL_PATH, IMAGE_SIZE, FOOD_CLASSES
 from src.nutrition import get_nutrition_info
+
 
 # Fix: patch DepthwiseConv2D to strip unsupported 'groups' kwarg
 @tf.keras.utils.register_keras_serializable()
@@ -15,15 +15,15 @@ class FixedDepthwiseConv2D(tf.keras.layers.DepthwiseConv2D):
         kwargs.pop("groups", None)
         super().__init__(*args, **kwargs)
 
-model = None
 
-def load_model():
-    global model
-    if model is None:
-        model = tf.keras.models.load_model(
-            MODEL_PATH,
-            custom_objects={"DepthwiseConv2D": FixedDepthwiseConv2D}
-        )
+# Load model eagerly at import time
+print(f"Loading model from: {MODEL_PATH}")
+model = tf.keras.models.load_model(
+    MODEL_PATH,
+    custom_objects={"DepthwiseConv2D": FixedDepthwiseConv2D}
+)
+print(f"Model loaded successfully. Input shape: {model.input_shape}")
+
 
 def validate_image(image):
     if image is None:
@@ -37,6 +37,7 @@ def validate_image(image):
         raise ValueError("Image is too large. Please upload a smaller photo.")
     return True
 
+
 def preprocess_image(image):
     image = image.convert("RGB")
     image = image.resize(IMAGE_SIZE, Image.LANCZOS)
@@ -44,25 +45,40 @@ def preprocess_image(image):
     image = np.expand_dims(image, axis=0)
     return image
 
+
 def is_low_confidence(confidence, threshold=0.35):
     return confidence < threshold
 
+
 def predict_food(image):
+    print("Starting prediction...")
+
     validate_image(image)
-    load_model()
+
+    print("Preprocessing image...")
     processed = preprocess_image(image)
+
+    print("Running model inference...")
     predictions = model.predict(processed, verbose=0)[0]
+
     top_indices = predictions.argsort()[-3:][::-1]
     top_predictions = [
         {"food": FOOD_CLASSES[idx], "confidence": float(predictions[idx])}
         for idx in top_indices
     ]
+
     predicted_food = top_predictions[0]["food"]
     top_confidence = top_predictions[0]["confidence"]
+    print(f"Prediction: {predicted_food} ({round(top_confidence * 100, 1)}%)")
+
     warning = None
     if is_low_confidence(top_confidence):
         warning = f"Warning: Low confidence ({round(top_confidence*100, 1)}%) - this food may not be in our database."
+
+    print("Fetching nutrition info...")
     nutrition, health_score, tip, category, color = get_nutrition_info(predicted_food)
+    print(f"Nutrition source: {nutrition.get('source', 'unknown')}")
+
     return {
         "prediction":      predicted_food,
         "confidence":      top_confidence,
