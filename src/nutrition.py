@@ -4,17 +4,18 @@ nutrition.py
 Handles nutrition information retrieval.
 
 Steps:
-1. Try USDA FoodData Central API (free, no key needed for basic search)
+1. Try USDA FoodData Central API
 2. Fallback to Open Food Facts API
-3. If both fail, return fallback data
-4. Compute improved health score and tips
+3. If both fail, use fallback nutrition data
+4. Compute health score and tips
 """
 
 import requests
 from src.config import OPEN_FOOD_FACTS_API
 
+
 # --------------------------------------------------
-# Fallback Nutrition Data (per 100g) - All 10 classes
+# Fallback Nutrition Data (per 100g)
 # --------------------------------------------------
 
 FALLBACK_DATA = {
@@ -32,156 +33,168 @@ FALLBACK_DATA = {
 
 
 # --------------------------------------------------
-# USDA FoodData Central API (free, no key required)
+# USDA FoodData Central API
 # --------------------------------------------------
 
 USDA_API_URL = "https://api.nal.usda.gov/fdc/v1/foods/search"
-USDA_API_KEY = "DEMO_KEY"  # Free demo key, works for low usage
+USDA_API_KEY = "DEMO_KEY"
 
 
 def fetch_from_usda(food_name):
-    """Fetch nutrition from USDA FoodData Central."""
+
     try:
-        query = food_name.replace("_", " ")
+
         params = {
-            "query": query,
+            "query": food_name.replace("_", " "),
             "dataType": ["Survey (FNDDS)"],
             "pageSize": 1,
             "api_key": USDA_API_KEY,
         }
-        response = requests.get(USDA_API_URL, params=params, timeout=6)
+
+        response = requests.get(USDA_API_URL, params=params, timeout=5)
+
+        if response.status_code != 200:
+            return None
+
         data = response.json()
 
         if not data.get("foods"):
             return None
 
         food = data["foods"][0]
-        nutrients = {n["nutrientName"]: n["value"] for n in food.get("foodNutrients", [])}
+
+        nutrients = {
+            n["nutrientName"]: n["value"]
+            for n in food.get("foodNutrients", [])
+        }
 
         return {
             "calories": round(nutrients.get("Energy", 0)),
-            "protein":  round(nutrients.get("Protein", 0), 1),
-            "carbs":    round(nutrients.get("Carbohydrate, by difference", 0), 1),
-            "fat":      round(nutrients.get("Total lipid (fat)", 0), 1),
-            "fiber":    round(nutrients.get("Fiber, total dietary", 0), 1),
-            "sugar":    round(nutrients.get("Sugars, total including NLEA", 0), 1),
-            "sodium":   round(nutrients.get("Sodium, Na", 0)),
-            "source":   "USDA FoodData Central",
+            "protein": round(nutrients.get("Protein", 0), 1),
+            "carbs": round(nutrients.get("Carbohydrate, by difference", 0), 1),
+            "fat": round(nutrients.get("Total lipid (fat)", 0), 1),
+            "fiber": round(nutrients.get("Fiber, total dietary", 0), 1),
+            "sugar": round(nutrients.get("Sugars, total including NLEA", 0), 1),
+            "sodium": round(nutrients.get("Sodium, Na", 0)),
+            "source": "USDA FoodData Central",
         }
+
     except Exception:
+
         return None
 
 
 # --------------------------------------------------
-# Open Food Facts API (backup)
+# Open Food Facts API
 # --------------------------------------------------
 
 def fetch_from_openfoodfacts(food_name):
-    """Fetch nutrition from Open Food Facts."""
+
     try:
-        params = {"search_terms": food_name.replace("_", " "), "search_simple": 1, "json": 1}
+
+        params = {
+            "search_terms": food_name.replace("_", " "),
+            "search_simple": 1,
+            "json": 1,
+        }
+
         response = requests.get(OPEN_FOOD_FACTS_API, params=params, timeout=5)
+
+        if response.status_code != 200:
+            return None
+
         data = response.json()
 
         if not data.get("products"):
             return None
 
         product = data["products"][0]
+
         n = product.get("nutriments", {})
 
         return {
             "calories": round(n.get("energy-kcal_100g", 0)),
-            "protein":  round(n.get("proteins_100g", 0), 1),
-            "carbs":    round(n.get("carbohydrates_100g", 0), 1),
-            "fat":      round(n.get("fat_100g", 0), 1),
-            "fiber":    round(n.get("fiber_100g", 0), 1),
-            "sugar":    round(n.get("sugars_100g", 0), 1),
-            "sodium":   round(n.get("sodium_100g", 0) * 1000),
-            "source":   "Open Food Facts",
+            "protein": round(n.get("proteins_100g", 0), 1),
+            "carbs": round(n.get("carbohydrates_100g", 0), 1),
+            "fat": round(n.get("fat_100g", 0), 1),
+            "fiber": round(n.get("fiber_100g", 0), 1),
+            "sugar": round(n.get("sugars_100g", 0), 1),
+            "sodium": round(n.get("sodium_100g", 0) * 1000),
+            "source": "Open Food Facts",
         }
+
     except Exception:
+
         return None
 
 
 # --------------------------------------------------
-# Improved Health Score (multi-factor, weighted)
+# Health Score
 # --------------------------------------------------
 
 def calculate_health_score(nutrition):
-    """
-    Multi-factor weighted health score (1-10).
-    Based on WHO/NHS daily intake guidelines per 100g.
-    """
-    score = 10.0
 
-    # Calories (ref: 200 kcal per 100g is moderate)
+    score = 10
+
     cal = nutrition.get("calories", 0)
-    if cal > 450:   score -= 2.5
-    elif cal > 300: score -= 1.5
-    elif cal > 200: score -= 0.5
 
-    # Fat (ref: >17.5g per 100g is high)
-    fat = nutrition.get("fat", 0)
-    if fat > 25:    score -= 2.0
-    elif fat > 17:  score -= 1.0
+    if cal > 450:
+        score -= 3
+    elif cal > 300:
+        score -= 2
+    elif cal > 200:
+        score -= 1
 
-    # Sugar (ref: >22.5g per 100g is high)
-    sugar = nutrition.get("sugar", 0)
-    if sugar > 30:  score -= 2.0
-    elif sugar > 22: score -= 1.0
+    if nutrition.get("fat", 0) > 20:
+        score -= 2
 
-    # Sodium (ref: >600mg per 100g is high)
-    sodium = nutrition.get("sodium", 0)
-    if sodium > 800:  score -= 2.0
-    elif sodium > 600: score -= 1.0
+    if nutrition.get("sugar", 0) > 25:
+        score -= 2
 
-    # Fiber bonus (fiber is healthy)
-    fiber = nutrition.get("fiber", 0)
-    if fiber >= 6:   score += 1.0
-    elif fiber >= 3: score += 0.5
+    if nutrition.get("sodium", 0) > 700:
+        score -= 2
 
-    # Protein bonus (protein is filling & healthy)
-    protein = nutrition.get("protein", 0)
-    if protein >= 20: score += 0.5
+    if nutrition.get("fiber", 0) >= 3:
+        score += 1
 
-    return max(1, min(10, round(score)))
+    return max(1, min(10, score))
 
 
 def get_health_category(score):
-    if score >= 8:  return "Excellent", "#22c55e"
-    if score >= 6:  return "Good", "#84cc16"
-    if score >= 4:  return "Moderate", "#f59e0b"
+
+    if score >= 8:
+        return "Excellent", "#22c55e"
+
+    if score >= 6:
+        return "Good", "#84cc16"
+
+    if score >= 4:
+        return "Moderate", "#f59e0b"
+
     return "Indulgent", "#ef4444"
 
 
 # --------------------------------------------------
-# Health Tips (context-aware)
+# Health Tips
 # --------------------------------------------------
 
 def generate_health_tip(food_name, nutrition, score):
+
     name = food_name.replace("_", " ").title()
-    tips = []
+
+    if score >= 8:
+        return f"{name} is a nutritious choice. Enjoy it as part of a balanced diet."
 
     if nutrition.get("calories", 0) > 300:
-        tips.append("high in calories — best enjoyed in smaller portions")
+        return f"{name} is high in calories — best enjoyed in smaller portions."
+
     if nutrition.get("sugar", 0) > 20:
-        tips.append("contains significant sugar — pair with protein to slow absorption")
+        return f"{name} contains significant sugar — pair with protein to slow absorption."
+
     if nutrition.get("sodium", 0) > 500:
-        tips.append("high sodium content — balance with plenty of water")
-    if nutrition.get("fiber", 0) >= 3:
-        tips.append("good source of fiber — supports digestion")
-    if nutrition.get("protein", 0) >= 15:
-        tips.append("rich in protein — great for muscle recovery")
+        return f"{name} has high sodium — balance with water and vegetables."
 
-    if not tips:
-        if score >= 7:
-            return f"{name} is a nutritious choice. Enjoy it as part of a balanced diet."
-        return f"{name} can be enjoyed in moderation as part of a varied diet."
-
-    base = f"{name} is " + tips[0]
-    if len(tips) > 1:
-        base += f", and {tips[1]}"
-    return base.capitalize() + "."
+    return f"{name} can be enjoyed occasionally as part of a varied diet."
 
 
 # --------------------------------------------------
@@ -189,25 +202,33 @@ def generate_health_tip(food_name, nutrition, score):
 # --------------------------------------------------
 
 def get_nutrition_info(food_name):
-    """Get nutrition from API with fallback chain."""
 
-    # Try USDA first (most accurate)
     nutrition = fetch_from_usda(food_name)
 
-    # Try Open Food Facts
     if nutrition is None:
         nutrition = fetch_from_openfoodfacts(food_name)
 
-    # Use fallback data
     if nutrition is None:
-        nutrition = FALLBACK_DATA.get(food_name, {
-            "calories": 0, "protein": 0, "carbs": 0,
-            "fat": 0, "fiber": 0, "sugar": 0, "sodium": 0,
-        })
+
+        nutrition = FALLBACK_DATA.get(
+            food_name,
+            {
+                "calories": 0,
+                "protein": 0,
+                "carbs": 0,
+                "fat": 0,
+                "fiber": 0,
+                "sugar": 0,
+                "sodium": 0,
+            },
+        )
+
         nutrition["source"] = "Estimated"
 
     health_score = calculate_health_score(nutrition)
+
     category, color = get_health_category(health_score)
+
     tip = generate_health_tip(food_name, nutrition, health_score)
 
     return nutrition, health_score, tip, category, color
