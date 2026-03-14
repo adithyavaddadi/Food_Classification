@@ -17,4 +17,4 @@ requests>=2.31.0
 python-dotenv>=1.0.0
 
 # Critical Fix for Python 3.13 (Gradio/Pydub support)
-audioop-lts; python_version >= "3.13"
+audioop-lts; python_version >= "3.10"
