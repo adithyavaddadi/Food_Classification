@@ -1,14 +1,12 @@
 """
-dataset.py
+Dataset loading and preprocessing module for the Food101 dataset.
 
-Handles loading and preprocessing of the Food101 dataset.
-
-Responsibilities:
-- Download dataset using TensorFlow Datasets
-- Use 10% subset for faster training
-- Filter the first 10 food classes
-- Resize and normalize images
-- Create training and validation datasets
+This module handles:
+1. Downloading the Food101 dataset via TensorFlow Datasets (TFDS).
+2. Using a 10% subset of the data for faster local training/resource efficiency.
+3. Filtering the dataset to include only the specified 10 classes.
+4. Resizing and normalizing the input images.
+5. Packaging the data into optimized TF pipelines (shuffle, batch, prefetch).
 """
 
 import tensorflow as tf
@@ -21,41 +19,59 @@ from src.config import (
     FOOD_CLASSES,
 )
 
-# --------------------------------------------------
-# Image Preprocessing
-# --------------------------------------------------
+# =========================================================================
+# Image Preprocessing & Filtering
+# =========================================================================
 
 def preprocess_image(image, label):
     """
-    Resize and normalize images.
+    Resizes and normalizes a single image.
+
+    Args:
+        image (tf.Tensor): Raw input image tensor.
+        label (tf.Tensor): Class index label.
+
+    Returns:
+        tuple: Preprocessed image tensor resized to config specification
+               and normalized to [0, 1], and the unmodified label tensor.
     """
     image = tf.image.resize(image, IMAGE_SIZE)
     image = image / 255.0
     return image, label
 
 
-# --------------------------------------------------
-# Class Filtering
-# --------------------------------------------------
-
 def filter_classes(image, label):
     """
-    Keep only the first 10 classes from Food101.
+    Filters out labels that are not within the subset of target food classes.
+
+    Args:
+        image (tf.Tensor): Preprocessed image tensor.
+        label (tf.Tensor): Class index label.
+
+    Returns:
+        tf.Tensor: Boolean tensor representing whether the label is in our subset.
     """
     return label < len(FOOD_CLASSES)
 
 
-# --------------------------------------------------
-# Dataset Loading
-# --------------------------------------------------
+# =========================================================================
+# Dataset Loading Pipeline
+# =========================================================================
 
 def load_datasets():
     """
-    Load Food101 dataset subset and prepare training and validation datasets.
-    """
+    Loads and prepares the Food101 dataset subset for training and validation.
 
+    Loads 10% of the Food101 splits, applies the target class filters, maps 
+    resizing/normalization operations, and returns optimized datasets with shuffling,
+    batching, and prefetching enabled.
+
+    Returns:
+        tuple: (train_ds, val_ds) - Ready-to-train tf.data.Dataset objects.
+    """
     print("Loading Food101 dataset (10% subset)...")
 
+    # Load 10% subsets to comply with 8GB RAM constraints and faster training
     train_ds = tfds.load(
         DATASET_NAME,
         split="train[:10%]",
@@ -70,34 +86,23 @@ def load_datasets():
         shuffle_files=False
     )
 
-    # --------------------------------------------------
-    # Filter only the first 10 classes
-    # --------------------------------------------------
-
+    # Filter to only keep our first 10 specified classes
     train_ds = train_ds.filter(filter_classes)
     val_ds = val_ds.filter(filter_classes)
 
-    # --------------------------------------------------
-    # Preprocess images
-    # --------------------------------------------------
-
+    # Map preprocessing function (parallelize to handle resources gracefully)
     train_ds = train_ds.map(
         preprocess_image,
-        num_parallel_calls=2   # limit threads for 8GB RAM
+        num_parallel_calls=tf.data.AUTOTUNE
     )
-
     val_ds = val_ds.map(
         preprocess_image,
-        num_parallel_calls=2
+        num_parallel_calls=tf.data.AUTOTUNE
     )
 
-    # --------------------------------------------------
-    # Shuffle, batch, prefetch
-    # --------------------------------------------------
+    # Shuffling, batching, and prefetching to optimize TPU/GPU/CPU utilization
+    train_ds = train_ds.shuffle(500).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
+    val_ds = val_ds.batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
 
-    train_ds = train_ds.shuffle(500).batch(BATCH_SIZE).prefetch(1)
-    val_ds = val_ds.batch(BATCH_SIZE).prefetch(1)
-
-    print("Dataset ready")
-
+    print("Dataset loading and processing complete.")
     return train_ds, val_ds

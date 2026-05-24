@@ -1,10 +1,10 @@
 """
-model.py
+Model architecture module for the Food Classification & Nutrition AI model.
 
-Defines the deep learning model used for food classification.
-
-Uses Transfer Learning with MobileNetV2 pretrained on ImageNet.
-Adds a custom classification head for the Food101 subset.
+This module sets up:
+1. MobileNetV2 pretrained on ImageNet as a feature extraction base.
+2. Custom classification head tailored to our Food101 subset (10 classes).
+3. Fine-tuning capability to unfreeze and retrain top layers of MobileNetV2.
 """
 
 import tensorflow as tf
@@ -20,72 +20,70 @@ from src.config import (
     DROPOUT_RATE_2,
     LEARNING_RATE_PHASE1,
     LEARNING_RATE_PHASE2,
-    FINE_TUNE_LAYERS
+    FINE_TUNE_LAYERS,
 )
 
-
-# --------------------------------------------------
-# Build Base Model
-# --------------------------------------------------
+# =========================================================================
+# Model Creation Functions
+# =========================================================================
 
 def build_base_model():
     """
-    Load MobileNetV2 pretrained on ImageNet.
-    The top classification layer is removed.
-    """
+    Instantiates the MobileNetV2 base model pretrained on ImageNet.
 
+    The final fully-connected classification layer is excluded so it can be 
+    replaced by our custom classification head.
+
+    Returns:
+        tf.keras.Model: Instantiated MobileNetV2 model.
+    """
     base_model = MobileNetV2(
         input_shape=(*IMAGE_SIZE, 3),
         include_top=False,
         weights="imagenet"
     )
-
     return base_model
 
 
-# --------------------------------------------------
-# Build Full Model
-# --------------------------------------------------
-
 def build_model():
     """
-    Build the full classification model with a custom head.
-    """
+    Constructs and compiles the full classification network.
 
+    Combines the pretrained MobileNetV2 base model (initially frozen to keep
+    pretrained weights intact) with a custom classification head including
+    pooling, batch normalization, dropout, dense, and softmax layers.
+
+    Returns:
+        tuple: (model, base_model)
+            - model (tf.keras.Model): Compiled complete model ready for Phase 1.
+            - base_model (tf.keras.Model): Pretrained MobileNetV2 base layer.
+    """
     # Load pretrained base model
     base_model = build_base_model()
 
-    # Freeze base model during initial training
+    # Freeze base model during initial training phase
     base_model.trainable = False
 
     # Input layer
     inputs = tf.keras.Input(shape=(*IMAGE_SIZE, 3))
 
-    # Feature extraction
+    # Feature extraction via base
     x = base_model(inputs, training=False)
 
-    # Global feature pooling
+    # Custom classification head
     x = layers.GlobalAveragePooling2D()(x)
-
-    # Stabilize training
     x = layers.BatchNormalization()(x)
-
-    # Regularization
     x = layers.Dropout(DROPOUT_RATE_1)(x)
-
-    # Dense layer
     x = layers.Dense(DENSE_UNITS, activation="relu")(x)
-
-    # Additional dropout
     x = layers.Dropout(DROPOUT_RATE_2)(x)
-
-    # Output classification layer
+    
+    # Output class probabilities
     outputs = layers.Dense(NUM_CLASSES, activation="softmax")(x)
 
-    # Build model
+    # Assemble Keras Model
     model = models.Model(inputs, outputs, name="FoodClassifier_MobileNetV2")
 
-    # Compile model
+    # Compile with Adam optimizer for categorical crossentropy
     model.compile(
         optimizer=Adam(learning_rate=LEARNING_RATE_PHASE1),
         loss="sparse_categorical_crossentropy",
@@ -95,23 +93,33 @@ def build_model():
     return model, base_model
 
 
-# --------------------------------------------------
-# Fine Tuning
-# --------------------------------------------------
+# =========================================================================
+# Fine-Tuning Setup
+# =========================================================================
 
 def fine_tune_model(model, base_model):
     """
-    Unfreeze top layers of the base model for fine tuning.
-    """
+    Prepares the model for Phase 2 fine-tuning.
 
-    # Unfreeze base model
+    Unfreezes the base MobileNetV2 model and refreezes all layers except for 
+    the top `FINE_TUNE_LAYERS` layers. Recompiles the model using a substantially
+    lower learning rate to avoid destructive weights update.
+
+    Args:
+        model (tf.keras.Model): Complete assembled model.
+        base_model (tf.keras.Model): MobileNetV2 base inside the model.
+
+    Returns:
+        tf.keras.Model: Recompiled model ready for fine-tuning.
+    """
+    # Unfreeze the base model
     base_model.trainable = True
 
-    # Freeze lower layers
+    # Refreeze lower layers and leave only top layers trainable
     for layer in base_model.layers[:-FINE_TUNE_LAYERS]:
         layer.trainable = False
 
-    # Recompile model with lower learning rate
+    # Recompile with a significantly lower learning rate
     model.compile(
         optimizer=Adam(learning_rate=LEARNING_RATE_PHASE2),
         loss="sparse_categorical_crossentropy",
