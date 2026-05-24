@@ -12,77 +12,97 @@ pinned: false
 
 # 🍕 Food Recognition & Nutrition AI
 
-> A state-of-the-art deep learning classifier that identifies dishes from photos and delivers real-time, comprehensive nutritional profiling and WHO-based dietary health scoring. Built for local development and optimized for seamless deployment on Hugging Face Spaces.
+<p align="center">
+  <strong>Identify food photography, fetch live USDA nutrition data, and analyze WHO dietary scores.</strong>
+</p>
 
-[![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.13-blue?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.16%2B-orange?style=flat-square&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/)
-[![Gradio](https://img.shields.io/badge/Gradio-5.23%2B-purple?style=flat-square&logo=gradio&logoColor=white)](https://gradio.app/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/TensorFlow-2.16%2B-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white" alt="TensorFlow" />
+  <img src="https://img.shields.io/badge/Gradio-5.23%2B-FF9800?style=for-the-badge&logo=gradio&logoColor=white" alt="Gradio" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" />
+</p>
 
 ---
 
-## 📸 Dashboard Screenshots
+## 📸 Dashboard Preview
 
+### Primary Analysis View
 ![Hero](assets/screenshots/hero.png)
 
+### Real-Time Inference Results
 ![Prediction](assets/screenshots/prediction.png)
 
+### Nutrition & Health Scoring Dashboard
 ![Nutrition](assets/screenshots/nutrition.png)
 
 ---
 
 ## ✨ Features
 
-- **🧠 Deep Learning Classification** — MobileNetV2 architecture with a custom classification head fine-tuned on the Food101 dataset (10 targeted classes).
-- **🚀 Two-Phase Transfer Learning** — Initial feature extraction phase with frozen base layers, followed by a meticulous fine-tuning phase of top layers using a decay-tuned learning rate.
-- **📡 USDA API Integration** — Live retrieval of micro and macronutrient content from the official USDA FoodData Central API, with Open Food Facts and local databases as automated fallbacks.
-- **📊 WHO-based Health Scoring** — A robust health scoring algorithm (1 to 10 scale) implementing dietary limits set by the World Health Organization for sodium, sugars, and lipids, paired with actionable advice.
-- **⚡ Lazy Caching Optimization** — Smart lazy model caching at the prediction layer, preventing Hugging Face Spaces startup timeouts and saving container resources.
-- **🎯 Smart Robust Design** — Dynamic validation checks on image format/resolution, warning signals for low confidence matches, and clean webcam support.
+- **🧠 Deep Learning Classifier**: MobileNetV2 architecture with a custom classification head fine-tuned on the Food101 dataset (10 targeted classes), delivering 87% accuracy.
+- **🚀 Two-Phase Transfer Learning**: Uses a two-phase training strategy:
+  1. *Phase 1*: Feature extraction with a frozen base model.
+  2. *Phase 2*: Fine-tuning of top layers with a decay-tuned learning rate.
+- **📡 Real-Time USDA API Integration**: Dynamically queries the official USDA FoodData Central API for micro and macronutrient profiling, with Open Food Facts and a local offline dataset as smart fallbacks.
+- **📊 WHO Dietary Health Scoring**: Implements an interactive multi-factor health scoring algorithm (1 to 10 scale) based on WHO guidelines for sodium, sugars, and lipids, accompanied by actionable dietary tips.
+- **⚡ Lazy Caching Optimization**: Caches the heavy Keras model on demand to bypass Hugging Face Spaces startup timeouts.
+- **🎯 Premium Aesthetics**: Built with a sleek, glassmorphic dark-mode Gradio user interface that supports drag-and-drop file uploads and live webcam captures.
 
 ---
 
 ## 🏗️ Neural Network Architecture
 
-```text
-Input Image (224 × 224 × 3)
-        ↓
-MobileNetV2 (Pretrained on ImageNet, base feature extractor)
-        ↓
-Global Average Pooling 2D
-        ↓
-Batch Normalization (stabilizes dense layer inputs)
-        ↓
-Dropout (Rate: 0.3)
-        ↓
-Dense Layer (128 Units, ReLU Activation)
-        ↓
-Dropout (Rate: 0.15)
-        ↓
-Dense Output Layer (10 Units, Softmax Activation) → Predicted Dish Match
+This flowchart visualizes the transfer learning pipeline, representing how the input food photo is processed into a final dish classification:
+
+```mermaid
+graph TD
+    A["📷 Input Image<br/>(224 × 224 × 3)"] --> B["🧠 MobileNetV2 Base Layer<br/>(Pretrained on ImageNet, Frozen)"]
+    B --> C["📦 Global Average Pooling 2D"]
+    C --> D["⚖️ Batch Normalization<br/>(Stabilizes activations)"]
+    D --> E["✂️ Dropout Layer<br/>(Rate: 0.3)"]
+    E --> F["💡 Dense Layer<br/>(128 Units, ReLU Activation)"]
+    F --> G["✂️ Dropout Layer<br/>(Rate: 0.15)"]
+    G --> H["🎯 Dense Output Layer<br/>(10 Units, Softmax Activation)"]
+    H --> I(("🍽️ Predicted Dish Match"))
+    
+    style A fill:#f97316,stroke:#ea580c,stroke-width:2px,color:#fff
+    style B fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff
+    style H fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style I fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
 ```
 
-### Training Strategy:
-1. **Phase 1 (Feature Extraction)**: All base MobileNetV2 layers frozen. Adam optimizer with $LR = 10^{-3}$ trained for 10 epochs.
-2. **Phase 2 (Fine-Tuning)**: Top 30 layers of the base MobileNetV2 unfrozen. Adam optimizer with a precise decay rate $LR = 10^{-5}$ trained for 5 epochs.
+### 📈 Two-Phase Training Details
+
+```python
+# Phase 1: Feature Extraction
+optimizer = Adam(learning_rate=1e-3)
+epochs    = 10
+# All MobileNetV2 layers are frozen to preserve pretrained weights
+
+# Phase 2: Fine-Tuning
+optimizer = Adam(learning_rate=1e-5)
+epochs    = 5
+# Top 30 layers of MobileNetV2 are unfrozen for domain-specific alignment
+```
 
 ---
 
 ## 🍽️ Supported Food Classes
 
-The classifier is tuned to identify the following 10 popular dishes:
+The classifier is trained on the following 10 popular dishes:
 
-| # | Class Name | # | Class Name |
-|:-:|---|:-:|---|
-| **1** | Apple Pie | **6** | Beet Salad |
-| **2** | Baby Back Ribs | **7** | Beignets |
-| **3** | Baklava | **8** | Bibimbap |
-| **4** | Beef Carpaccio | **9** | Bread Pudding |
-| **5** | Beef Tartare | **10** | Bruschetta |
+| Index | Target Food Class | Index | Target Food Class |
+|:---:|---|:---:|---|
+| **1** | 🥧 Apple Pie | **6** | 🥗 Beet Salad |
+| **2** | 🍖 Baby Back Ribs | **7** | 🍩 Beignets |
+| **3** | 🍯 Baklava | **8** | 🍲 Bibimbap |
+| **4** | 🥩 Beef Carpaccio | **9** | 🍞 Bread Pudding |
+| **5** | 🥩 Beef Tartare | **10** | 🍅 Bruschetta |
 
 ---
 
-## 📂 Production Directory Tree
+## 📂 Project Directory Structure
 
 ```text
 food-classification/
@@ -114,7 +134,7 @@ food-classification/
 
 ## 🚀 Local Quick Start
 
-Follow these simple steps to spin up the dashboard on your machine:
+Follow these steps to run the dashboard locally:
 
 ### 1. Clone the Repository
 ```bash
@@ -123,12 +143,12 @@ cd Food_Classification
 ```
 
 ### 2. Configure Your Environment
-Create a virtual environment to isolate package configurations:
+Create and activate a virtual environment to isolate dependencies:
 ```bash
 # Create environment
 python -m venv venv
 
-# Activate on Windows
+# Activate on Windows (Command Prompt)
 venv\Scripts\activate
 
 # Activate on macOS/Linux
@@ -136,25 +156,25 @@ source venv/bin/activate
 ```
 
 ### 3. Install Dependencies
-Install all required libraries including Keras and CPU-optimized TensorFlow:
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 4. Setup API Credentials (Optional)
-Obtain a free API Key from the [USDA FoodData Central Portal](https://api.nal.usda.gov/).
+Querying the USDA database requires an API key. You can get a free key instantly from the [USDA FoodData Central Portal](https://api.nal.usda.gov/).
 Create a `.env` file in the root directory:
 ```bash
 copy .env.template .env
 ```
-Open `.env` and fill in your credential:
+Open `.env` and fill in your API key:
 ```env
 USDA_API_KEY=YOUR_ACTUAL_USDA_KEY_HERE
 ```
-*Note: If no `.env` is created, the application naturally defaults to `DEMO_KEY`.*
+> [!NOTE]
+> If no `.env` file is present, the application will default to the public `DEMO_KEY`, which works immediately but has strict rate limits.
 
 ### 5. Add Your Trained Model
-Ensure you place your trained `food_classifier.h5` inside the `results/model/` directory:
+Place your trained `food_classifier.h5` inside the `results/model/` directory:
 ```text
 results/model/food_classifier.h5
 ```
@@ -168,18 +188,16 @@ Open your browser and navigate to **[http://localhost:7860](http://localhost:786
 
 ---
 
-## 📈 Model Performance & Metrics
+## 📊 Model Performance & Evaluation
 
 | Evaluation Metric | Value |
 |---|---|
 | **Base Classifier** | MobileNetV2 (ImageNet Pretrained) |
 | **Input Shape** | 224 × 224 × 3 |
 | **Trainable Weights** | ~2.3M parameters |
-| **Accuracy Score** | 87% overall validation accuracy (after Phase 2) |
+| **Overall Accuracy** | **87%** validation accuracy |
 | **Highest Class Recall** | Baklava (~97.97%) |
 | **Validation Strategy** | Sparse Categorical Crossentropy |
-
-*Metrics visualizations are automatically saved to `results/plots/` during the training and validation loops.*
 
 ---
 
