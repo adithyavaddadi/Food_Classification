@@ -1,14 +1,3 @@
----
-title: Food Classification
-emoji: 🍕
-colorFrom: red
-colorTo: yellow
-sdk: gradio
-sdk_version: "5.23.0"
-python_version: "3.10"
-app_file: app.py
-pinned: false
----
 
 # 🍕 Food Recognition & Nutrition AI
 
